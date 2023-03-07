@@ -1,5 +1,6 @@
 const { configureStore, getDefaultMiddleware } = require("@reduxjs/toolkit");
 const { createLogger } = require("redux-logger");
+
 const videoReducer = require("../features/video/fetchVideoSlice");
 
 // redux logger

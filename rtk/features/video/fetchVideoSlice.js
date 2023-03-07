@@ -2,9 +2,8 @@ const { createAsyncThunk, createSlice } = require("@reduxjs/toolkit");
 
 // initial state
 const initialState = {
-    loading: false,
-    videos: [],
-    error: "",
+    video: [],
+    relatedVideos: [],
 };
 
 // create async thunk
@@ -14,32 +13,40 @@ const fetchVideos = createAsyncThunk("video/fetchVideos", async () => {
     return videos;
 });
 
+const fetchRelatedVideos = createAsyncThunk(
+    "video/fetchRelatedVideos",
+    async (tags) => {
+        const queryString = tags.map((tag) => `tags_like=${tag}`).join("&");
+        const res = await fetch(`http://localhost:9000/videos?${queryString}`);
+        const relatedVideos = await res.json();
+        console.log(`http://localhost:9000/videos?${queryString}`);
+        return relatedVideos;
+    }
+);
 
 // create slice
 const videoSlice = createSlice({
     name: "video",
     initialState,
     extraReducers: (builder) => {
-        builder.addCase(fetchVideos.pending, (state, action) => {
-            state.loading = true;
-            state.error = "";
-        });
-
         builder.addCase(fetchVideos.fulfilled, (state, action) => {
             state.loading = false;
             state.error = "";
-            state.videos = action.payload;
+            state.video = action.payload;
         });
 
-        builder.addCase(fetchVideos.rejected, (state, action) => {
-            state.loading = false;
-            state.error = action.error.message;
-            state.videos = [];
+        builder.addCase(fetchRelatedVideos.fulfilled, (state, action) => {
+            state.relatedVideos = action.payload.sort((a, b) => {
+                if (b.views < a.views) {
+                    return -1;
+                }
+            });
         });
     },
 });
 
-
-
 module.exports = videoSlice.reducer;
 module.exports.fetchVideos = fetchVideos;
+module.exports.fetchRelatedVideos = fetchRelatedVideos;
+
+loading: false,

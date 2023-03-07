@@ -1,7 +1,18 @@
 const store = require("./app/store");
 
-const { fetchVideos } = require("./features/video/fetchVideoSlice");
+const {
+    fetchVideos,
+    fetchRelatedVideos,
+} = require("./features/video/fetchVideoSlice");
 
-store.subscribe(() => {});
+async function finalResult() {
+    try {
+        const result = await store.dispatch(fetchVideos());
+        // const tags = result.payload.tags;
+        await store.dispatch(fetchRelatedVideos(result.payload.tags));
+    } catch (error) {
+        console.log(error);
+    }
+}
 
-store.dispatch(fetchVideos());
+finalResult();
